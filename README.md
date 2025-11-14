@@ -138,7 +138,11 @@ This project is licensed under the MIT License.
 
 ## 👥 Authors
 
-- **Prasad Kambale** - [GitHub](https://github.com/prasadkambale181-cmd)
+- **Prashant Ghodke** -
+- **Smitesh Kumbhar** -
+- **Om Ghule** -
+- **Utkarsh Kadu** -
+ 
 
 ## 🙏 Acknowledgments
 
