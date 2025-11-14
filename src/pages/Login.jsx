@@ -2,9 +2,11 @@ import { useState, useContext, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { AuthContext } from '../context/AuthContext'
-import axios from 'axios'
+import axiosInstance from '../api/axiosInstance'
 import toast from 'react-hot-toast'
 import { Mail, Lock, LogIn, Eye, EyeOff } from 'lucide-react'
+import loginImage from '../assets/A.png'
+import logoImage from '../assets/L.png'
 
 const Login = () => {
     const [formData, setFormData] = useState({ email: '', password: '' })
@@ -25,7 +27,7 @@ const Login = () => {
         setLoading(true)
 
         try {
-            const { data } = await axios.post('/api/auth/login', formData)
+            const { data } = await axiosInstance.post('/auth/login', formData)
             login(data)
             toast.success(`Welcome back, ${data.name}! 👋`)
             navigate('/')
@@ -52,7 +54,7 @@ const Login = () => {
                                 transition={{ duration: 3, repeat: Infinity }}
                             >
                                 <img
-                                    src="/A.png"
+                                    src={loginImage}
                                     alt="SudharNayak - Smart Civic Reporting"
                                     className="rounded-3xl shadow-2xl w-full h-auto"
                                 />
@@ -79,7 +81,7 @@ const Login = () => {
                     >
                         <div className="text-center mb-6 sm:mb-8">
                             <motion.img
-                                src="/L.png"
+                                src={logoImage}
                                 alt="SudharNayak Logo"
                                 className="h-24 sm:h-32 w-auto mx-auto mb-3 sm:mb-4"
                                 initial={{ scale: 0 }}

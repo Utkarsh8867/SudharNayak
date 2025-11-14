@@ -1,5 +1,6 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast'
+import { useEffect } from 'react'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
 import Home from './pages/Home'
@@ -12,9 +13,25 @@ import Register from './pages/Register'
 import AdminDashboard from './pages/AdminDashboard'
 import TestCloudinary from './pages/TestCloudinary'
 
+// Scroll to top component
+function ScrollToTop() {
+    const { pathname } = useLocation()
+
+    useEffect(() => {
+        window.scrollTo({
+            top: 0,
+            left: 0,
+            behavior: 'smooth'
+        })
+    }, [pathname])
+
+    return null
+}
+
 function App() {
     return (
         <Router>
+            <ScrollToTop />
             <div className="flex flex-col min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
                 <Toaster
                     position="top-right"

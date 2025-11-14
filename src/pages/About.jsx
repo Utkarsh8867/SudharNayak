@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
+import aboutImage from '../assets/A.png'
 
 const About = () => {
     const [isVisible, setIsVisible] = useState(false)
@@ -115,7 +116,7 @@ const About = () => {
                                 <motion.img
                                     animate={{ y: [0, -20, 0] }}
                                     transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                                    src="/A.png"
+                                    src={aboutImage}
                                     alt="SudharNayak - Smart Civic Reporting"
                                     className="rounded-2xl shadow-2xl w-full h-auto"
                                 />

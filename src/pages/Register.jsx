@@ -2,9 +2,11 @@ import { useState, useContext, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { AuthContext } from '../context/AuthContext'
-import axios from 'axios'
+import axiosInstance from '../api/axiosInstance'
 import toast from 'react-hot-toast'
 import { User, Mail, Lock, UserPlus, Eye, EyeOff } from 'lucide-react'
+import registerImage from '../assets/A.png'
+import logoImage from '../assets/L.png'
 
 const Register = () => {
     const [formData, setFormData] = useState({ name: '', email: '', password: '' })
@@ -31,7 +33,7 @@ const Register = () => {
         setLoading(true)
 
         try {
-            const { data } = await axios.post('/api/auth/register', formData)
+            const { data } = await axiosInstance.post('/auth/register', formData)
             login(data)
             toast.success(`Welcome to SudharNayak, ${data.name}! 🎉`)
             navigate('/')
@@ -54,7 +56,7 @@ const Register = () => {
                     >
                         <div className="text-center mb-8">
                             <motion.img
-                                src="/L.png"
+                                src={logoImage}
                                 alt="SudharNayak Logo"
                                 className="h-40 w-auto mx-auto mb-4"
                                 initial={{ scale: 0 }}
@@ -170,7 +172,7 @@ const Register = () => {
                     >
                         <div className="relative mb-8">
                             <motion.img
-                                src="/A.png"
+                                src={registerImage}
                                 alt="SudharNayak - Smart Civic Reporting"
                                 className="rounded-3xl shadow-2xl w-full h-auto"
                                 animate={{ y: [0, -20, 0] }}
