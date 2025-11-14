@@ -37,9 +37,9 @@ const Login = () => {
     }
 
     return (
-        <div className="min-h-screen flex items-center justify-center py-12 px-4">
+        <div className="min-h-screen flex items-center justify-center py-6 sm:py-8 md:py-12 px-4">
             <div className="container mx-auto">
-                <div className="grid md:grid-cols-2 gap-8 max-w-6xl mx-auto items-center">
+                <div className="grid md:grid-cols-2 gap-6 sm:gap-8 max-w-6xl mx-auto items-center">
                     {/* Left Side - Illustration */}
                     <motion.div
                         initial={{ opacity: 0, x: -50 }}
@@ -75,19 +75,19 @@ const Login = () => {
                     <motion.div
                         initial={{ opacity: 0, x: 50 }}
                         animate={{ opacity: 1, x: 0 }}
-                        className="bg-white rounded-3xl shadow-2xl p-8 md:p-12"
+                        className="bg-white rounded-2xl sm:rounded-3xl shadow-2xl p-6 sm:p-8 md:p-12"
                     >
-                        <div className="text-center mb-8">
+                        <div className="text-center mb-6 sm:mb-8">
                             <motion.img
                                 src="/L.png"
                                 alt="SudharNayak Logo"
-                                className="h-32 w-auto mx-auto mb-4"
+                                className="h-24 sm:h-32 w-auto mx-auto mb-3 sm:mb-4"
                                 initial={{ scale: 0 }}
                                 animate={{ scale: 1 }}
                                 transition={{ type: "spring", stiffness: 200 }}
                             />
-                            <h2 className="text-3xl font-bold text-gray-800 mb-2">Login</h2>
-                            <p className="text-gray-600">Sign in to your account</p>
+                            <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-2">Login</h2>
+                            <p className="text-sm sm:text-base text-gray-600">Sign in to your account</p>
                         </div>
 
                         <form onSubmit={handleSubmit} className="space-y-6">

@@ -5,12 +5,14 @@ import axiosInstance from '../api/axiosInstance'
 import IssueCard from '../components/IssueCard'
 import Loader, { SkeletonCard } from '../components/Loader'
 import { AlertCircle, CheckCircle, Clock, TrendingUp, Filter, Search } from 'lucide-react'
+import heroImage from '../assets/H.png'
 
 const Home = () => {
     const [issues, setIssues] = useState([])
     const [loading, setLoading] = useState(true)
     const [filter, setFilter] = useState({ category: '', status: '' })
     const [searchTerm, setSearchTerm] = useState('')
+    const [slowLoading, setSlowLoading] = useState(false)
     const [stats, setStats] = useState({
         total: 0,
         pending: 0,
@@ -25,11 +27,19 @@ const Home = () => {
     const fetchIssues = async () => {
         try {
             setLoading(true)
+            setSlowLoading(false)
+
+            // Show message if loading takes more than 3 seconds
+            const slowLoadTimer = setTimeout(() => {
+                setSlowLoading(true)
+            }, 3000)
+
             const params = new URLSearchParams()
             if (filter.category) params.append('category', filter.category)
             if (filter.status) params.append('status', filter.status)
 
             const { data } = await axiosInstance.get(`/issues?${params}`)
+            clearTimeout(slowLoadTimer)
             setIssues(data)
 
             // Calculate stats
@@ -43,6 +53,7 @@ const Home = () => {
             console.error('Error fetching issues:', error)
         } finally {
             setLoading(false)
+            setSlowLoading(false)
         }
     }
 
@@ -57,39 +68,39 @@ const Home = () => {
             <motion.section
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-700 text-white py-20"
+                className="bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-700 text-white py-12 sm:py-16 md:py-20"
             >
                 <div className="container mx-auto px-4">
-                    <div className="grid md:grid-cols-2 gap-12 items-center">
+                    <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-center">
                         <motion.div
                             initial={{ x: -100, opacity: 0 }}
                             animate={{ x: 0, opacity: 1 }}
                             transition={{ delay: 0.2 }}
                         >
-                            <h1 className="text-5xl md:text-6xl font-bold mb-6 leading-tight">
+                            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 md:mb-6 leading-tight">
                                 Make Your City
                                 <span className="block text-yellow-300">Better Together</span>
                             </h1>
-                            <p className="text-xl mb-8 text-purple-100">
+                            <p className="text-base sm:text-lg md:text-xl mb-6 md:mb-8 text-purple-100">
                                 Report civic issues, track progress, and create positive change in your community.
                                 Your voice matters! 🏙️
                             </p>
-                            <div className="flex gap-4">
-                                <Link to="/report">
+                            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+                                <Link to="/report" className="w-full sm:w-auto">
                                     <motion.button
                                         whileHover={{ scale: 1.05 }}
                                         whileTap={{ scale: 0.95 }}
-                                        className="bg-white text-purple-600 px-8 py-4 rounded-xl font-bold text-lg hover:shadow-2xl transition flex items-center gap-2"
+                                        className="w-full bg-white text-purple-600 px-6 sm:px-8 py-3 sm:py-4 rounded-xl font-bold text-base sm:text-lg hover:shadow-2xl transition flex items-center justify-center gap-2"
                                     >
-                                        <AlertCircle size={24} />
+                                        <AlertCircle size={20} className="sm:w-6 sm:h-6" />
                                         Report Issue
                                     </motion.button>
                                 </Link>
-                                <Link to="/register">
+                                <Link to="/register" className="w-full sm:w-auto">
                                     <motion.button
                                         whileHover={{ scale: 1.05 }}
                                         whileTap={{ scale: 0.95 }}
-                                        className="border-2 border-white text-white px-8 py-4 rounded-xl font-bold text-lg hover:bg-white hover:text-purple-600 transition"
+                                        className="w-full border-2 border-white text-white px-6 sm:px-8 py-3 sm:py-4 rounded-xl font-bold text-base sm:text-lg hover:bg-white hover:text-purple-600 transition"
                                     >
                                         Join Now
                                     </motion.button>
@@ -101,7 +112,7 @@ const Home = () => {
                             initial={{ x: 100, opacity: 0 }}
                             animate={{ x: 0, opacity: 1 }}
                             transition={{ delay: 0.4 }}
-                            className="relative"
+                            className="relative hidden md:block"
                         >
                             <motion.div
                                 animate={{ y: [0, -20, 0] }}
@@ -109,9 +120,9 @@ const Home = () => {
                                 className="relative z-10"
                             >
                                 <img
-                                    src="https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=600&h=400&fit=crop"
-                                    alt="City"
-                                    className="rounded-2xl shadow-2xl"
+                                    src={heroImage}
+                                    alt="SudharNayak - Making Cities Better"
+                                    className="rounded-2xl shadow-2xl w-full h-auto"
                                 />
                             </motion.div>
                             <div className="absolute -bottom-4 -right-4 w-72 h-72 bg-yellow-300 rounded-full opacity-20 blur-3xl"></div>
@@ -122,43 +133,47 @@ const Home = () => {
             </motion.section>
 
             {/* Stats Section */}
-            <section className="py-12 bg-white">
+            <section className="py-8 sm:py-12 bg-white">
                 <div className="container mx-auto px-4">
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
                         <motion.div
                             whileHover={{ scale: 1.05 }}
-                            className="bg-gradient-to-br from-purple-500 to-purple-600 text-white p-6 rounded-2xl shadow-lg"
+                            whileTap={{ scale: 0.98 }}
+                            className="bg-gradient-to-br from-purple-500 to-purple-600 text-white p-4 sm:p-6 rounded-xl sm:rounded-2xl shadow-lg"
                         >
-                            <TrendingUp size={32} className="mb-2" />
-                            <div className="text-3xl font-bold">{stats.total}</div>
-                            <div className="text-purple-100">Total Issues</div>
+                            <TrendingUp size={24} className="sm:w-8 sm:h-8 mb-2" />
+                            <div className="text-2xl sm:text-3xl font-bold">{stats.total}</div>
+                            <div className="text-purple-100 text-xs sm:text-sm">Total Issues</div>
                         </motion.div>
 
                         <motion.div
                             whileHover={{ scale: 1.05 }}
-                            className="bg-gradient-to-br from-yellow-500 to-yellow-600 text-white p-6 rounded-2xl shadow-lg"
+                            whileTap={{ scale: 0.98 }}
+                            className="bg-gradient-to-br from-yellow-500 to-yellow-600 text-white p-4 sm:p-6 rounded-xl sm:rounded-2xl shadow-lg"
                         >
-                            <Clock size={32} className="mb-2" />
-                            <div className="text-3xl font-bold">{stats.pending}</div>
-                            <div className="text-yellow-100">Pending</div>
+                            <Clock size={24} className="sm:w-8 sm:h-8 mb-2" />
+                            <div className="text-2xl sm:text-3xl font-bold">{stats.pending}</div>
+                            <div className="text-yellow-100 text-xs sm:text-sm">Pending</div>
                         </motion.div>
 
                         <motion.div
                             whileHover={{ scale: 1.05 }}
-                            className="bg-gradient-to-br from-blue-500 to-blue-600 text-white p-6 rounded-2xl shadow-lg"
+                            whileTap={{ scale: 0.98 }}
+                            className="bg-gradient-to-br from-blue-500 to-blue-600 text-white p-4 sm:p-6 rounded-xl sm:rounded-2xl shadow-lg"
                         >
-                            <AlertCircle size={32} className="mb-2" />
-                            <div className="text-3xl font-bold">{stats.inProgress}</div>
-                            <div className="text-blue-100">In Progress</div>
+                            <AlertCircle size={24} className="sm:w-8 sm:h-8 mb-2" />
+                            <div className="text-2xl sm:text-3xl font-bold">{stats.inProgress}</div>
+                            <div className="text-blue-100 text-xs sm:text-sm">In Progress</div>
                         </motion.div>
 
                         <motion.div
                             whileHover={{ scale: 1.05 }}
-                            className="bg-gradient-to-br from-green-500 to-green-600 text-white p-6 rounded-2xl shadow-lg"
+                            whileTap={{ scale: 0.98 }}
+                            className="bg-gradient-to-br from-green-500 to-green-600 text-white p-4 sm:p-6 rounded-xl sm:rounded-2xl shadow-lg"
                         >
-                            <CheckCircle size={32} className="mb-2" />
-                            <div className="text-3xl font-bold">{stats.resolved}</div>
-                            <div className="text-green-100">Resolved</div>
+                            <CheckCircle size={24} className="sm:w-8 sm:h-8 mb-2" />
+                            <div className="text-2xl sm:text-3xl font-bold">{stats.resolved}</div>
+                            <div className="text-green-100 text-xs sm:text-sm">Resolved</div>
                         </motion.div>
                     </div>
                 </div>
@@ -170,18 +185,18 @@ const Home = () => {
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="mb-8"
+                        className="mb-6 md:mb-8"
                     >
-                        <h2 className="text-4xl font-bold text-gray-800 mb-2 flex items-center gap-3">
-                            <Filter className="text-purple-600" />
+                        <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 mb-2 flex items-center gap-2 sm:gap-3">
+                            <Filter className="text-purple-600 w-6 h-6 sm:w-8 sm:h-8" />
                             Recent Issues
                         </h2>
-                        <p className="text-gray-600">Browse and track civic issues in your community</p>
+                        <p className="text-sm sm:text-base text-gray-600">Browse and track civic issues in your community</p>
                     </motion.div>
 
                     {/* Search and Filters */}
-                    <div className="bg-white p-6 rounded-2xl shadow-lg mb-8">
-                        <div className="grid md:grid-cols-3 gap-4">
+                    <div className="bg-white p-4 sm:p-6 rounded-xl sm:rounded-2xl shadow-lg mb-6 md:mb-8">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
                             <div className="relative">
                                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
                                 <input
@@ -218,6 +233,21 @@ const Home = () => {
                             </select>
                         </div>
                     </div>
+
+                    {/* Slow Loading Message */}
+                    {slowLoading && loading && (
+                        <motion.div
+                            initial={{ opacity: 0, y: -10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6 flex items-center gap-3"
+                        >
+                            <Clock className="text-blue-600 animate-spin" size={24} />
+                            <div>
+                                <p className="text-blue-800 font-semibold">Waking up the server...</p>
+                                <p className="text-blue-600 text-sm">This may take 30-50 seconds on first load. Thanks for your patience! ☕</p>
+                            </div>
+                        </motion.div>
+                    )}
 
                     {/* Issues Grid */}
                     {loading ? (

@@ -171,7 +171,7 @@ const ReportIssue = () => {
     ]
 
     return (
-        <div className="min-h-screen py-12">
+        <div className="min-h-screen py-6 sm:py-8 md:py-12">
             <div className="container mx-auto px-4">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
@@ -179,17 +179,17 @@ const ReportIssue = () => {
                     className="max-w-4xl mx-auto"
                 >
                     {/* Header */}
-                    <div className="text-center mb-8">
+                    <div className="text-center mb-6 sm:mb-8">
                         <motion.div
                             initial={{ scale: 0 }}
                             animate={{ scale: 1 }}
                             transition={{ type: "spring", stiffness: 200 }}
-                            className="inline-block text-6xl mb-4"
+                            className="inline-block text-4xl sm:text-5xl md:text-6xl mb-3 sm:mb-4"
                         >
                             📢
                         </motion.div>
-                        <h1 className="text-4xl font-bold text-gray-800 mb-2">Report an Issue</h1>
-                        <p className="text-gray-600">Help make your city better by reporting civic problems</p>
+                        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 mb-2">Report an Issue</h1>
+                        <p className="text-sm sm:text-base text-gray-600">Help make your city better by reporting civic problems</p>
                     </div>
 
                     {/* Form */}
@@ -197,7 +197,7 @@ const ReportIssue = () => {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.2 }}
-                        className="bg-white rounded-3xl shadow-2xl p-8 md:p-12"
+                        className="bg-white rounded-2xl sm:rounded-3xl shadow-2xl p-6 sm:p-8 md:p-12"
                     >
                         <form onSubmit={handleSubmit} className="space-y-6">
                             {/* Title */}
@@ -235,7 +235,7 @@ const ReportIssue = () => {
                                 <label className="block text-gray-700 font-semibold mb-3">
                                     Category *
                                 </label>
-                                <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+                                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 sm:gap-3">
                                     {categoryOptions.map((cat) => (
                                         <motion.button
                                             key={cat.value}
@@ -243,12 +243,12 @@ const ReportIssue = () => {
                                             whileHover={{ scale: 1.05 }}
                                             whileTap={{ scale: 0.95 }}
                                             onClick={() => setFormData({ ...formData, category: cat.value })}
-                                            className={`p-4 rounded-xl border-2 transition ${formData.category === cat.value
+                                            className={`p-3 sm:p-4 rounded-xl border-2 transition ${formData.category === cat.value
                                                 ? 'border-purple-600 bg-purple-50'
                                                 : 'border-gray-200 hover:border-purple-300'
                                                 }`}
                                         >
-                                            <div className="text-3xl mb-1">{cat.icon}</div>
+                                            <div className="text-2xl sm:text-3xl mb-1">{cat.icon}</div>
                                             <div className="text-xs font-medium text-gray-700">{cat.label}</div>
                                         </motion.button>
                                     ))}
@@ -372,7 +372,7 @@ const ReportIssue = () => {
                                     <MapPin size={20} className="text-purple-600" />
                                     Location Address
                                 </label>
-                                <div className="flex gap-2">
+                                <div className="flex flex-col sm:flex-row gap-2">
                                     <input
                                         type="text"
                                         value={formData.location.address}
@@ -389,7 +389,7 @@ const ReportIssue = () => {
                                         disabled={locationLoading}
                                         whileHover={{ scale: 1.05 }}
                                         whileTap={{ scale: 0.95 }}
-                                        className="bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-3 rounded-xl font-semibold hover:shadow-lg transition disabled:opacity-50 flex items-center gap-2"
+                                        className="bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-3 rounded-xl font-semibold hover:shadow-lg transition disabled:opacity-50 flex items-center justify-center gap-2 w-full sm:w-auto"
                                     >
                                         {locationLoading ? (
                                             <motion.div
@@ -400,10 +400,10 @@ const ReportIssue = () => {
                                         ) : (
                                             <Navigation size={20} />
                                         )}
-                                        {locationLoading ? 'Getting...' : 'Auto-Detect'}
+                                        <span className="whitespace-nowrap">{locationLoading ? 'Getting...' : 'Auto-Detect'}</span>
                                     </motion.button>
                                 </div>
-                                <p className="text-sm text-gray-500 mt-2">
+                                <p className="text-xs sm:text-sm text-gray-500 mt-2">
                                     💡 Click "Auto-Detect" to automatically get your current location using GPS
                                 </p>
                             </div>

@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { AuthContext } from '../context/AuthContext'
 import { Menu, X, Home, FileText, User, LogOut, Shield, ChevronDown, Settings } from 'lucide-react'
 import toast from 'react-hot-toast'
+import logoImage from '../assets/N.png'
 
 const Navbar = () => {
     const { user, logout } = useContext(AuthContext)
@@ -38,13 +39,13 @@ const Navbar = () => {
             className="bg-white shadow-md sticky top-0 z-50 border-b border-gray-100"
         >
             <div className="container mx-auto px-4">
-                <div className="flex justify-between items-center py-1">
-                    {/* Logo - Full Navbar Height */}
-                    <Link to="/" className="flex items-center">
+                <div className="flex justify-between items-center py-2">
+                    {/* Logo */}
+                    <Link to="/" className="flex items-center py-1">
                         <motion.img
-                            src="/N.png"
+                            src={logoImage}
                             alt="SudharNayak Logo"
-                            className="h-20 w-auto"
+                            className="h-16 w-auto"
                             whileHover={{ scale: 1.05 }}
                             transition={{ duration: 0.3 }}
                         />
