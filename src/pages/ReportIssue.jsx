@@ -4,14 +4,16 @@ import { motion } from 'framer-motion'
 import { AuthContext } from '../context/AuthContext'
 import axiosInstance from '../api/axiosInstance'
 import toast from 'react-hot-toast'
-import { Upload, MapPin, Image as ImageIcon, Send, AlertCircle, Navigation } from 'lucide-react'
+import { Upload, MapPin, Image as ImageIcon, Send, AlertCircle, Navigation, X } from 'lucide-react'
 import { getCurrentLocationWithAddress } from '../utils/geolocation'
+import { compressBase64, getBase64Size, formatFileSize } from '../utils/urlOptimizer'
 
 const ReportIssue = () => {
     const { user } = useContext(AuthContext)
     const navigate = useNavigate()
     const [loading, setLoading] = useState(false)
     const [locationLoading, setLocationLoading] = useState(false)
+    const [uploadingImage, setUploadingImage] = useState(false)
     const [imagePreview, setImagePreview] = useState('')
     const [formData, setFormData] = useState({
         title: '',
@@ -49,7 +51,91 @@ const ReportIssue = () => {
 
     const handleImageUrlChange = (url) => {
         setFormData({ ...formData, imageUrl: url })
-        setImagePreview(url)
+        if (url) {
+            // Validate URL format
+            try {
+                new URL(url)
+                setImagePreview(url)
+            } catch {
+                setImagePreview('')
+                if (url.trim()) {
+                    toast.error('Please enter a valid image URL')
+                }
+            }
+        } else {
+            setImagePreview('')
+        }
+    }
+
+    const compressImage = (file, maxWidth = 800, quality = 0.7) => {
+        return new Promise((resolve) => {
+            const canvas = document.createElement('canvas')
+            const ctx = canvas.getContext('2d')
+            const img = new Image()
+
+            img.onload = () => {
+                // Calculate new dimensions
+                let { width, height } = img
+                if (width > maxWidth) {
+                    height = (height * maxWidth) / width
+                    width = maxWidth
+                }
+
+                canvas.width = width
+                canvas.height = height
+
+                // Draw and compress
+                ctx.drawImage(img, 0, 0, width, height)
+                const compressedDataUrl = canvas.toDataURL('image/jpeg', quality)
+                resolve(compressedDataUrl)
+            }
+
+            img.src = URL.createObjectURL(file)
+        })
+    }
+
+    const handleImageUpload = async (e) => {
+        const file = e.target.files[0]
+        if (!file) return
+
+        // Validate file
+        const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp']
+        const maxSize = 5 * 1024 * 1024 // 5MB
+
+        if (!validTypes.includes(file.type)) {
+            toast.error('Invalid file type. Please upload JPG, PNG, GIF, or WebP images.')
+            return
+        }
+
+        if (file.size > maxSize) {
+            toast.error('File too large. Maximum size is 5MB.')
+            return
+        }
+
+        setUploadingImage(true)
+        toast.loading('Compressing and processing image...', { id: 'upload' })
+
+        try {
+            // Compress image to reduce base64 size
+            const compressedBase64 = await compressImage(file, 800, 0.7)
+
+            // Create preview
+            setImagePreview(compressedBase64)
+            setFormData({ ...formData, imageUrl: compressedBase64 })
+
+            toast.success('Image compressed and ready! It will be uploaded to Cloudinary when you submit.', { id: 'upload' })
+        } catch (error) {
+            toast.error('Failed to process image. Please try again.', { id: 'upload' })
+            console.error('Upload error:', error)
+        } finally {
+            setUploadingImage(false)
+        }
+    }
+
+    const removeImage = () => {
+        setImagePreview('')
+        setFormData({ ...formData, imageUrl: '' })
+        toast.success('Image removed')
     }
 
     const handleSubmit = async (e) => {
@@ -57,11 +143,20 @@ const ReportIssue = () => {
         setLoading(true)
 
         try {
+            // Validate form data
+            if (!formData.title || !formData.description) {
+                toast.error('Please fill in all required fields')
+                setLoading(false)
+                return
+            }
+
             await axiosInstance.post('/issues', formData)
             toast.success('Issue reported successfully! 🎉')
             navigate('/')
         } catch (err) {
-            toast.error(err.response?.data?.message || 'Failed to report issue')
+            console.error('Submit error:', err)
+            const errorMessage = err.response?.data?.message || 'Failed to report issue. Please try again.'
+            toast.error(errorMessage)
         } finally {
             setLoading(false)
         }
@@ -164,17 +259,69 @@ const ReportIssue = () => {
                             <div>
                                 <label className="block text-gray-700 font-semibold mb-2 flex items-center gap-2">
                                     <ImageIcon size={20} className="text-purple-600" />
-                                    Image URL (Optional)
+                                    Upload Image (Optional)
                                 </label>
-                                <div className="space-y-3">
-                                    <input
-                                        type="url"
-                                        value={formData.imageUrl}
-                                        onChange={(e) => handleImageUrlChange(e.target.value)}
-                                        className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition"
-                                        placeholder="https://example.com/image.jpg"
-                                    />
 
+                                <div className="space-y-4">
+                                    {/* File Upload */}
+                                    <div>
+                                        <label className="cursor-pointer">
+                                            <input
+                                                type="file"
+                                                accept="image/*"
+                                                onChange={handleImageUpload}
+                                                disabled={uploadingImage}
+                                                className="hidden"
+                                            />
+                                            <motion.div
+                                                whileHover={{ scale: 1.01 }}
+                                                whileTap={{ scale: 0.99 }}
+                                                className={`border-2 border-dashed border-gray-300 rounded-xl p-6 text-center transition ${uploadingImage ? 'opacity-50 cursor-not-allowed' : 'hover:border-purple-500 hover:bg-purple-50'
+                                                    }`}
+                                            >
+                                                {uploadingImage ? (
+                                                    <div className="flex flex-col items-center gap-2">
+                                                        <motion.div
+                                                            animate={{ rotate: 360 }}
+                                                            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                                                            className="w-10 h-10 border-4 border-purple-600 border-t-transparent rounded-full"
+                                                        />
+                                                        <p className="text-gray-600 font-medium text-sm">Loading image...</p>
+                                                    </div>
+                                                ) : (
+                                                    <>
+                                                        <Upload size={40} className="mx-auto text-gray-400 mb-2" />
+                                                        <p className="text-gray-700 font-semibold mb-1">
+                                                            Click to upload an image
+                                                        </p>
+                                                        <p className="text-xs text-gray-500">
+                                                            JPG, PNG, GIF, WebP - Max 5MB
+                                                        </p>
+                                                    </>
+                                                )}
+                                            </motion.div>
+                                        </label>
+                                    </div>
+
+                                    {/* OR Divider */}
+                                    <div className="flex items-center gap-3">
+                                        <div className="flex-1 border-t border-gray-300"></div>
+                                        <span className="text-sm text-gray-500 font-medium">OR</span>
+                                        <div className="flex-1 border-t border-gray-300"></div>
+                                    </div>
+
+                                    {/* URL Input */}
+                                    <div>
+                                        <input
+                                            type="url"
+                                            value={formData.imageUrl}
+                                            onChange={(e) => handleImageUrlChange(e.target.value)}
+                                            className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition"
+                                            placeholder="Paste image URL here..."
+                                        />
+                                    </div>
+
+                                    {/* Image Preview */}
                                     {imagePreview && (
                                         <motion.div
                                             initial={{ opacity: 0, scale: 0.9 }}
@@ -187,33 +334,33 @@ const ReportIssue = () => {
                                                 className="w-full h-64 object-cover"
                                                 onError={() => {
                                                     setImagePreview('')
-                                                    toast.error('Invalid image URL')
+                                                    setFormData({ ...formData, imageUrl: '' })
+                                                    toast.error('Failed to load image. Please check the URL or try uploading again.')
+                                                }}
+                                                onLoad={() => {
+                                                    // Image loaded successfully
+                                                    console.log('Image loaded successfully')
                                                 }}
                                             />
                                             <button
                                                 type="button"
-                                                onClick={() => {
-                                                    setImagePreview('')
-                                                    setFormData({ ...formData, imageUrl: '' })
-                                                }}
-                                                className="absolute top-2 right-2 bg-red-500 text-white p-2 rounded-full hover:bg-red-600 transition"
+                                                onClick={removeImage}
+                                                className="absolute top-2 right-2 bg-red-500 text-white p-2 rounded-full hover:bg-red-600 transition shadow-lg"
                                             >
-                                                ✕
+                                                <X size={18} />
                                             </button>
+                                            {/* Image info overlay */}
+                                            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/50 to-transparent p-3">
+                                                <p className="text-white text-xs">
+                                                    {imagePreview.includes('cloudinary.com') ? '☁️ Cloudinary' : '🔗 External URL'}
+                                                </p>
+                                            </div>
                                         </motion.div>
                                     )}
 
-                                    <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
-                                        <p className="text-sm text-blue-800">
-                                            💡 <strong>Tip:</strong> Upload your image to{' '}
-                                            <a href="https://imgur.com" target="_blank" rel="noopener noreferrer" className="underline">
-                                                Imgur
-                                            </a>{' '}
-                                            or{' '}
-                                            <a href="https://imgbb.com" target="_blank" rel="noopener noreferrer" className="underline">
-                                                ImgBB
-                                            </a>{' '}
-                                            and paste the direct link here.
+                                    <div className="bg-green-50 border border-green-200 rounded-xl p-3">
+                                        <p className="text-xs text-green-800">
+                                            ☁️ <strong>Cloudinary Integration:</strong> Images are automatically processed and uploaded to Cloudinary when you submit your report. You can also paste direct image URLs from other sources.
                                         </p>
                                     </div>
                                 </div>

@@ -8,9 +8,8 @@ const Footer = () => {
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
                     {/* About Section */}
                     <div>
-                        <div className="flex items-center gap-2 mb-4">
-                            <img src="/L.png" alt="SudharNayak" className="h-8 w-auto" />
-                            <h3 className="text-xl font-bold">SudharNayak</h3>
+                        <div className="mb-4">
+                            <img src="/F.png" alt="SudharNayak" className="h-16 w-auto" />
                         </div>
                         <p className="text-gray-400 text-sm">
                             Making cities better, one report at a time. Empowering citizens to create positive change in their communities.

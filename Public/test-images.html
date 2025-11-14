@@ -63,9 +63,17 @@
         <h1>🏙️ SudharNayak - Image Test</h1>
 
         <div class="image-test">
+            <h2>Navbar Logo (N.png)</h2>
+            <p>Path: /N.png</p>
+            <img src="/N.png" alt="Navbar Logo" style="height: 80px;"
+                onerror="this.parentElement.innerHTML += '<div class=\'status error\'>❌ Image failed to load</div>'"
+                onload="this.parentElement.innerHTML += '<div class=\'status success\'>✅ Image loaded successfully!</div>'">
+        </div>
+
+        <div class="image-test">
             <h2>Logo (L.png)</h2>
             <p>Path: /L.png</p>
-            <img src="/L.png" alt="Logo"
+            <img src="/L.png" alt="Logo" style="height: 80px;"
                 onerror="this.parentElement.innerHTML += '<div class=\'status error\'>❌ Image failed to load</div>'"
                 onload="this.parentElement.innerHTML += '<div class=\'status success\'>✅ Image loaded successfully!</div>'">
         </div>
@@ -73,7 +81,15 @@
         <div class="image-test">
             <h2>Application Image (A.png)</h2>
             <p>Path: /A.png</p>
-            <img src="/A.png" alt="Application"
+            <img src="/A.png" alt="Application" style="height: 80px;"
+                onerror="this.parentElement.innerHTML += '<div class=\'status error\'>❌ Image failed to load</div>'"
+                onload="this.parentElement.innerHTML += '<div class=\'status success\'>✅ Image loaded successfully!</div>'">
+        </div>
+
+        <div class="image-test">
+            <h2>Footer Image (F.png)</h2>
+            <p>Path: /F.png</p>
+            <img src="/F.png" alt="Footer" style="height: 80px;"
                 onerror="this.parentElement.innerHTML += '<div class=\'status error\'>❌ Image failed to load</div>'"
                 onload="this.parentElement.innerHTML += '<div class=\'status success\'>✅ Image loaded successfully!</div>'">
         </div>
@@ -82,8 +98,10 @@
             <h2>Direct File Check</h2>
             <p>Try accessing directly:</p>
             <ul>
-                <li><a href="/L.png" target="_blank">Open L.png</a></li>
-                <li><a href="/A.png" target="_blank">Open A.png</a></li>
+                <li><a href="/N.png" target="_blank">Open N.png (Navbar Logo)</a></li>
+                <li><a href="/L.png" target="_blank">Open L.png (Logo)</a></li>
+                <li><a href="/A.png" target="_blank">Open A.png (Application)</a></li>
+                <li><a href="/F.png" target="_blank">Open F.png (Footer)</a></li>
             </ul>
         </div>
 

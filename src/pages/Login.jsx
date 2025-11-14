@@ -1,4 +1,4 @@
-import { useState, useContext } from 'react'
+import { useState, useContext, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { AuthContext } from '../context/AuthContext'
@@ -10,8 +10,15 @@ const Login = () => {
     const [formData, setFormData] = useState({ email: '', password: '' })
     const [loading, setLoading] = useState(false)
     const [showPassword, setShowPassword] = useState(false)
-    const { login } = useContext(AuthContext)
+    const { login, user } = useContext(AuthContext)
     const navigate = useNavigate()
+
+    // Redirect if already logged in
+    useEffect(() => {
+        if (user) {
+            navigate('/')
+        }
+    }, [user, navigate])
 
     const handleSubmit = async (e) => {
         e.preventDefault()
@@ -74,7 +81,7 @@ const Login = () => {
                             <motion.img
                                 src="/L.png"
                                 alt="SudharNayak Logo"
-                                className="h-16 w-auto mx-auto mb-4"
+                                className="h-32 w-auto mx-auto mb-4"
                                 initial={{ scale: 0 }}
                                 animate={{ scale: 1 }}
                                 transition={{ type: "spring", stiffness: 200 }}

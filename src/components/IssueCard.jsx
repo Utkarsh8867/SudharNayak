@@ -1,8 +1,17 @@
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { MapPin, Calendar, User, Eye } from 'lucide-react'
+import { MapPin, Calendar, User, Eye, Heart, Share2 } from 'lucide-react'
+import { useState, useContext } from 'react'
+import { AuthContext } from '../context/AuthContext'
+import axiosInstance from '../api/axiosInstance'
+import toast from 'react-hot-toast'
+import ImageSlider from './ImageSlider'
 
 const IssueCard = ({ issue, index }) => {
+    const { user } = useContext(AuthContext)
+    const [liked, setLiked] = useState(issue.likes?.includes(user?._id))
+    const [likesCount, setLikesCount] = useState(issue.likesCount || 0)
+
     const statusColors = {
         Pending: 'bg-yellow-100 text-yellow-800 border-yellow-300',
         'In Progress': 'bg-blue-100 text-blue-800 border-blue-300',
@@ -17,6 +26,51 @@ const IssueCard = ({ issue, index }) => {
         Other: '📋',
     }
 
+    const handleLike = async (e) => {
+        e.preventDefault()
+        if (!user) {
+            toast.error('Please login to like issues')
+            return
+        }
+
+        try {
+            const { data } = await axiosInstance.post(`/issues/${issue._id}/like`)
+            setLiked(data.liked)
+            setLikesCount(data.likesCount)
+            toast.success(data.liked ? 'Issue liked!' : 'Issue unliked')
+        } catch (error) {
+            toast.error('Failed to like issue')
+        }
+    }
+
+    const handleShare = async (e) => {
+        e.preventDefault()
+        const shareUrl = `${window.location.origin}/issue/${issue._id}`
+        const shareText = `Check out this civic issue: ${issue.title}`
+
+        if (navigator.share) {
+            try {
+                await navigator.share({
+                    title: issue.title,
+                    text: shareText,
+                    url: shareUrl,
+                })
+                toast.success('Shared successfully!')
+            } catch (error) {
+                if (error.name !== 'AbortError') {
+                    copyToClipboard(shareUrl)
+                }
+            }
+        } else {
+            copyToClipboard(shareUrl)
+        }
+    }
+
+    const copyToClipboard = (text) => {
+        navigator.clipboard.writeText(text)
+        toast.success('Link copied to clipboard!')
+    }
+
     return (
         <motion.div
             initial={{ opacity: 0, y: 50 }}
@@ -25,9 +79,11 @@ const IssueCard = ({ issue, index }) => {
             whileHover={{ y: -8 }}
             className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300"
         >
-            {/* Image Section */}
+            {/* Image Section with Slider */}
             <div className="relative h-48 overflow-hidden bg-gradient-to-br from-purple-100 to-blue-100">
-                {issue.imageUrl ? (
+                {issue.images && issue.images.length > 0 ? (
+                    <ImageSlider images={issue.images} autoPlay={true} interval={4000} />
+                ) : issue.imageUrl ? (
                     <img
                         src={issue.imageUrl}
                         alt={issue.title}
@@ -38,8 +94,8 @@ const IssueCard = ({ issue, index }) => {
                         {categoryIcons[issue.category]}
                     </div>
                 )}
-                <div className="absolute top-3 right-3">
-                    <span className={`px-3 py-1 rounded-full text-xs font-semibold border ${statusColors[issue.status]}`}>
+                <div className="absolute top-3 right-3 z-10">
+                    <span className={`px-3 py-1 rounded-full text-xs font-semibold border backdrop-blur-sm ${statusColors[issue.status]}`}>
                         {issue.status}
                     </span>
                 </div>
@@ -88,17 +144,42 @@ const IssueCard = ({ issue, index }) => {
                     )}
                 </div>
 
-                {/* View Details Button */}
-                <Link to={`/issue/${issue._id}`}>
+                {/* Action Buttons */}
+                <div className="flex items-center gap-2 mb-4">
                     <motion.button
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                        className="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white py-3 rounded-xl font-semibold hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2"
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={handleLike}
+                        className={`flex items-center gap-1.5 px-4 py-2 rounded-lg transition ${liked
+                            ? 'bg-red-100 text-red-600'
+                            : 'bg-gray-100 text-gray-600 hover:bg-red-50 hover:text-red-600'
+                            }`}
                     >
-                        <Eye size={18} />
-                        <span>View Details</span>
+                        <Heart size={16} fill={liked ? 'currentColor' : 'none'} />
+                        <span className="text-sm font-medium">{likesCount}</span>
                     </motion.button>
-                </Link>
+
+                    <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={handleShare}
+                        className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-gray-100 text-gray-600 hover:bg-blue-50 hover:text-blue-600 transition"
+                    >
+                        <Share2 size={16} />
+                        <span className="text-sm font-medium">Share</span>
+                    </motion.button>
+
+                    <Link to={`/issue/${issue._id}`} className="flex-1">
+                        <motion.button
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                            className="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white py-2 rounded-lg font-semibold hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2"
+                        >
+                            <Eye size={16} />
+                            <span className="text-sm">View</span>
+                        </motion.button>
+                    </Link>
+                </div>
             </div>
         </motion.div>
     )
